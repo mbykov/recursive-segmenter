@@ -15,53 +15,54 @@ let db = new PouchDB('http://localhost:5984/chinese', {
     }
 })
 
-
 module.exports = segmenter;
 
-// - padas
-// забрать dicts
-// - chains for dicts
-
 function segmenter(str, cb) {
-    let padas = parsePadas(str)
-    // log('==UKEYS==', padas.toString())
-
+    let clauses = parseClause(str)
+    let keys = clauses.map(cl => parseKeys(cl))
+    keys = _.uniq(_.flatten(keys))
+    // log('==UKEYS==', keys.toString())
     db.query('chinese/byDict', {
-        keys: padas,
+        keys: keys,
         include_docs: true
     }).then(function (res) {
         if (!res || !res.rows) throw new Error('no term result')
         let docs = res.rows.map(function(row) { return row.doc})
-        let gdoc = compactDocs(str, docs)
-
-        var chains = []
-        var chain
-        function rec(gdoc, pos = 0) {
-            let starts = getByPos(gdoc, pos)
-            if (!starts.length) {
-                let clone = JSON.parse(JSON.stringify(chain));
-                chains.push(clone);
-                chain = null
-                return
-            }
-            starts.forEach(start => {
-                if (!chain && pos !== 0) return
-                if (!chain) chain = []
-                chain.push(start.dict)
-                let nextpos = pos + start.size
-                rec(gdoc, nextpos)
-            })
-        }
-        rec(gdoc)
-        let sizes = chains.map(ch => ch.length)
-        let max = _.min(sizes)
-        let longests = _.filter(chains, ch => ch.length == max)
-        // log('CH=>', longests)
-        cb(null, longests)
+        let seg4cl = {}
+        clauses.forEach(cl => {
+            let gdoc = compactDocs(cl, docs)
+            seg4cl[cl] = longest(cl, gdoc)
+        })
+        cb(null, seg4cl)
     }).catch(function (err) {
         log('queryTERMS ERRS', err);
         cb(err, null)
     })
+}
+
+function longest(str, gdoc) {
+    let chains = []
+    let chain
+    function rec(gdoc, pos = 0) {
+        let starts = getByPos(gdoc, pos)
+        if (!starts.length) {
+            let clone = JSON.parse(JSON.stringify(chain));
+            chains.push(clone);
+            chain = null
+            return
+        }
+        starts.forEach(start => {
+            if (!chain && pos !== 0) return
+            if (!chain) chain = []
+            chain.push(start.dict)
+            let nextpos = pos + start.size
+            rec(gdoc, nextpos)
+        })
+    }
+    rec(gdoc)
+    let sizes = chains.map(ch => ch.length)
+    let max = _.min(sizes)
+    return _.filter(chains, ch => ch.length == max)
 }
 
 function getByPos(gdoc, pos) {
@@ -81,7 +82,7 @@ function compactDocs(str, docs) {
     return _.groupBy(docs, 'act')
 }
 
-function parsePadas(str) {
+function parseKeys(str) {
     let h, t
     let padas = []
     for (let idx = 1; idx < str.length+1; idx++) {
@@ -94,7 +95,12 @@ function parsePadas(str) {
             padas.push(h_)
         }
     }
+
     return padas
+}
+
+function parseClause(str) {
+    return str.split(' ')
 }
 
 
