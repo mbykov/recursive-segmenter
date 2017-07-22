@@ -55,18 +55,20 @@ function longest(str, gdoc) {
         starts.forEach(start => {
             chain = chain || []
             chain.push(start.dict)
-            let clone = _.clone(chain)
-            chains.push(clone)
-            let nextpos = start.start + start.size
-            rec(gdoc, chain, nextpos)
+            let npos = start.start + start.size
+            if (npos == str.length) {
+                let clone = _.clone(chain)
+                chains.push(clone)
+            }
+            rec(gdoc, chain, npos)
             chain.pop()
         })
     }
     rec(gdoc, null, 0)
-    return chains
-    // let sizes = chains.map(ch => ch.length)
-    // let max = _.min(sizes)
-    // return _.filter(chains, ch => ch.length == max)
+    // return chains
+    let sizes = chains.map(ch => ch.length)
+    let max = _.min(sizes)
+    return _.filter(chains, ch => ch.length == max)
 }
 
 function getByPos(gdoc, pos) {
