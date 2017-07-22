@@ -40,38 +40,43 @@ function segmenter(str, cb) {
     })
 }
 
+// 新华社北京
+// 第三十七次会议 并发表重要讲话
+// 第三十各地区要切实把 - должно быть два решения, поскольку 各地区要切实把 - два
+
+/*
+
+*/
+
 function longest(str, gdoc) {
     let chains = []
-    let chain
-    function rec(gdoc, pos = 0) {
+    let rec = (gdoc, chain, pos) => {
         let starts = getByPos(gdoc, pos)
-        if (!starts.length) {
-            let clone = JSON.parse(JSON.stringify(chain));
-            chains.push(clone);
-            chain = null
-            return
-        }
         starts.forEach(start => {
-            if (!chain && pos !== 0) return
-            if (!chain) chain = []
+            chain = chain || []
             chain.push(start.dict)
-            let nextpos = pos + start.size
-            rec(gdoc, nextpos)
+            let clone = _.clone(chain)
+            chains.push(clone)
+            let nextpos = start.start + start.size
+            rec(gdoc, chain, nextpos)
+            chain.pop()
         })
     }
-    rec(gdoc)
-    let sizes = chains.map(ch => ch.length)
-    let max = _.min(sizes)
-    return _.filter(chains, ch => ch.length == max)
+    rec(gdoc, null, 0)
+    return chains
+    // let sizes = chains.map(ch => ch.length)
+    // let max = _.min(sizes)
+    // return _.filter(chains, ch => ch.length == max)
 }
 
 function getByPos(gdoc, pos) {
     let starts = []
     for (let key in gdoc) {
         let value = gdoc[key][0]
-        if (value.start == pos) starts.push({dict: key, start: pos, size: value.size }) // , docs: gdoc[key]
+        if (value.start === pos) starts.push({dict: key, start: pos, size: value.size }) // , docs: gdoc[key]
     }
-    return _.sortBy(starts, ['size']).reverse(); //_.sortBy(starts, 'size')
+    return starts
+    // return _.sortBy(starts, ['size']).reverse(); //_.sortBy(starts, 'size')
 }
 
 function compactDocs(str, docs) {
