@@ -65,7 +65,6 @@ function longest(str, gdoc) {
         })
     }
     rec(gdoc, null, 0)
-    // return chains
     let sizes = chains.map(ch => ch.length)
     let max = _.min(sizes)
     return _.filter(chains, ch => ch.length == max)
@@ -78,7 +77,6 @@ function getByPos(gdoc, pos) {
         if (value.start === pos) starts.push({dict: key, start: pos, size: value.size }) // , docs: gdoc[key]
     }
     return starts
-    // return _.sortBy(starts, ['size']).reverse(); //_.sortBy(starts, 'size')
 }
 
 function compactDocs(str, docs) {
@@ -102,7 +100,6 @@ function parseKeys(str) {
             padas.push(h_)
         }
     }
-
     return padas
 }
 
