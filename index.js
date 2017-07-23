@@ -54,7 +54,7 @@ function longest(str, gdoc) {
         let starts = getByPos(gdoc, pos)
         starts.forEach(start => {
             chain = chain || []
-            chain.push(start.dict)
+            chain.push(start)
             let npos = start.start + start.size
             if (npos == str.length) {
                 let clone = _.clone(chain)
@@ -65,6 +65,7 @@ function longest(str, gdoc) {
         })
     }
     rec(gdoc, null, 0)
+    // return chains
     let sizes = chains.map(ch => ch.length)
     let max = _.min(sizes)
     return _.filter(chains, ch => ch.length == max)
@@ -74,17 +75,17 @@ function getByPos(gdoc, pos) {
     let starts = []
     for (let key in gdoc) {
         let value = gdoc[key][0]
-        if (value.start === pos) starts.push({dict: key, start: pos, size: value.size }) // , docs: gdoc[key]
+        if (value.start === pos) starts.push({dict: key, start: pos, size: value.size, docs: gdoc[key] }) // , docs: gdoc[key]
     }
     return starts
 }
 
 function compactDocs(str, docs) {
     docs.forEach(doc => {
-        doc.act = (str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
-        doc.start = str.indexOf(doc.act)
+        doc.dict = (str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
+        doc.start = str.indexOf(doc.dict)
     })
-    return _.groupBy(docs, 'act')
+    return _.groupBy(docs, 'dict')
 }
 
 function parseKeys(str) {
@@ -109,6 +110,11 @@ function parseClause(str) {
 
 
 function log() { console.log.apply(console, arguments); }
+
+
+// console.log(util.inspect(myObject, {showHidden: false, depth: null}))
+
+// alternative shortcut
 
 /*
 
