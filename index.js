@@ -92,15 +92,32 @@ function combined(size, chains) {
     for (let idx = 0; idx < size; idx++) {
         if (restricted.includes(idx)) continue
         let dicts = _.uniq(hash[idx].map(seg => seg.dict))
+        let curs = hash[idx]
         if (dicts.length == 1) {
-            res.push(hash[idx][0])
+            res.push([curs[0]])
         } else {
+            let nexts = hash[idx+1]
+            dicts.forEach((dict, idy) => {
+                let r = [curs[idy], nexts[idy]]
+                res.push(r)
+            })
             idx++
         }
     }
-
     log('------- res:')
     log(res)
+    let hash1 = {}
+    res.forEach(rs => {
+        if (rs.length == 1) {
+            hash1[rs[0].dict] = rs
+        } else {
+            let reg = rs.map(r => r.dict).join('')
+            if (!hash1[reg]) hash1[reg] = []
+            hash1[reg].push(rs)
+        }
+    })
+    log('------- h1:')
+    log(hash1)
     // 第三十各地区要切实把
 }
 
