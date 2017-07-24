@@ -31,8 +31,9 @@ function segmenter(str, cb) {
         let docs = res.rows.map(function(row) { return row.doc})
         let seg4cl = {}
         clauses.forEach(cl => {
-            let gdoc = compactDocs(cl, docs)
-            seg4cl[cl] = longest(cl, gdoc)
+            let gdocs = compactDocs(cl, docs)
+            // log('G', gdocs)
+            seg4cl[cl] = longest(cl, gdocs)
         })
         cb(null, seg4cl)
     }).catch(function (err) {
@@ -49,10 +50,12 @@ function segmenter(str, cb) {
 
 */
 
-function longest(str, gdoc) {
+function longest(str, gdocs) {
     let chains = []
-    let rec = (gdoc, chain, pos) => {
-        let starts = getByPos(gdoc, pos)
+    let rec = (gdocs, chain, pos) => {
+        // let starts = getByPos(gdoc, pos)
+        let starts = _.filter(gdocs, doc => doc.start == pos)
+        // log('S', starts.length)
         starts.forEach(start => {
             chain = chain || []
             chain.push(start)
@@ -61,12 +64,14 @@ function longest(str, gdoc) {
                 let clone = _.clone(chain)
                 chains.push(clone)
             }
-            rec(gdoc, chain, npos)
+            rec(gdocs, chain, npos)
             chain.pop()
         })
     }
-    rec(gdoc, null, 0)
+    rec(gdocs, null, 0)
 
+    // log('M', chains)
+    // return []
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
     let longests = _.filter(chains, ch => ch.length == min)
@@ -121,21 +126,35 @@ function combined(size, chains) {
     // 第三十各地区要切实把
 }
 
-function getByPos(gdoc, pos) {
-    let starts = []
-    for (let key in gdoc) {
-        let value = gdoc[key][0]
-        if (value.start === pos) starts.push({dict: key, start: pos, size: value.size, docs: gdoc[key] })
-    }
-    return starts
-}
+// function getByPos(gdoc, pos) {
+//     let starts = []
+//     for (let key in gdoc) {
+//         let value = gdoc[key][0]
+//         if (value.start === pos) starts.push({dict: key, start: pos, size: value.size, docs: gdoc[key] })
+//     }
+//     return starts
+// }
 
 function compactDocs(str, docs) {
-    docs.forEach(doc => {
+    docs.forEach((doc, idx) => {
         doc.dict = (str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
-        doc.start = str.indexOf(doc.dict)
     })
-    return _.groupBy(docs, 'dict')
+    let gdocs = _.groupBy(docs, 'dict')
+    let cdocs = []
+    for (let dict in gdocs) {
+        let indices = []
+        let idx = str.indexOf(dict)
+        while (idx != -1) {
+            indices.push(idx);
+            idx = str.indexOf(dict, idx + 1);
+        }
+        indices.forEach(idx => {
+            let res = {dict: dict, size: dict.length, start: idx, docs: gdocs[dict]}
+            cdocs.push(res)
+        })
+    }
+    // log(_.sortBy(cdocs, 'start'))
+    return _.sortBy(cdocs, 'start')
 }
 
 function parseKeys(str) {
