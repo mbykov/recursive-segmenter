@@ -75,8 +75,9 @@ function longest(str, gdoc) {
 }
 
 function combined(size, chains) {
-    log(chains)
-    let results = []
+    // log('CHs', chains)
+    // return
+    let res = []
     let hash = {}
     for (let idx = 0; idx < size; idx++) {
         // log('---', idx)
@@ -86,15 +87,20 @@ function combined(size, chains) {
             hash[idx].push(ch[idx])
         })
     }
-    log('----')
     log(hash)
-    for (let idx in hash) {
-        let segs = hash[idx]
+    let restricted = []
+    for (let idx = 0; idx < size; idx++) {
+        if (restricted.includes(idx)) continue
         let dicts = _.uniq(hash[idx].map(seg => seg.dict))
-        log('I', idx, dicts)
         if (dicts.length == 1) {
+            res.push(hash[idx][0])
+        } else {
+            idx++
         }
     }
+
+    log('------- res:')
+    log(res)
     // 第三十各地区要切实把
 }
 
