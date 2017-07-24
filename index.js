@@ -1,5 +1,6 @@
 // morpheus v.0.4.0
 
+const util = require('util')
 var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
@@ -65,17 +66,43 @@ function longest(str, gdoc) {
         })
     }
     rec(gdoc, null, 0)
-    // return chains
+
     let sizes = chains.map(ch => ch.length)
-    let max = _.min(sizes)
-    return _.filter(chains, ch => ch.length == max)
+    let min = _.min(sizes)
+    let longests = _.filter(chains, ch => ch.length == min)
+    combined(min, longests)
+    return []
+}
+
+function combined(size, chains) {
+    log(chains)
+    let results = []
+    let hash = {}
+    for (let idx = 0; idx < size; idx++) {
+        // log('---', idx)
+        if (!hash[idx] ) hash[idx] = []
+        chains.forEach(ch => {
+            // log('C', ch[idx])
+            hash[idx].push(ch[idx])
+        })
+    }
+    log('----')
+    log(hash)
+    for (let idx in hash) {
+        let segs = hash[idx]
+        let dicts = _.uniq(hash[idx].map(seg => seg.dict))
+        log('I', idx, dicts)
+        if (dicts.length == 1) {
+        }
+    }
+    // 第三十各地区要切实把
 }
 
 function getByPos(gdoc, pos) {
     let starts = []
     for (let key in gdoc) {
         let value = gdoc[key][0]
-        if (value.start === pos) starts.push({dict: key, start: pos, size: value.size, docs: gdoc[key] }) // , docs: gdoc[key]
+        if (value.start === pos) starts.push({dict: key, start: pos, size: value.size, docs: gdoc[key] })
     }
     return starts
 }
@@ -110,6 +137,10 @@ function parseClause(str) {
 
 
 function log() { console.log.apply(console, arguments); }
+
+function p(o) {
+    console.log(util.inspect(o, false, null))
+}
 
 
 // console.log(util.inspect(myObject, {showHidden: false, depth: null}))
