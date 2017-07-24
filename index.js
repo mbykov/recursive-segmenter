@@ -93,6 +93,7 @@ function combined(size, chains) {
         })
     }
     log(hash)
+    log('s', size)
     let restricted = []
     for (let idx = 0; idx < size; idx++) {
         if (restricted.includes(idx)) continue
@@ -112,17 +113,27 @@ function combined(size, chains) {
     log('------- res:')
     log(res)
     let hash1 = {}
-    res.forEach(rs => {
+    res.forEach((rs, i) => {
         if (rs.length == 1) {
-            hash1[rs[0].dict] = rs
+            hash1[rs[0].start] = rs[0]
+            // results.push({dict: rs[0].dict, rs: rs})
         } else {
             let reg = rs.map(r => r.dict).join('')
-            if (!hash1[reg]) hash1[reg] = []
-            hash1[reg].push(rs)
+            // if (!hash1[reg]) hash1[reg] = []
+            // hash1[reg].push(rs)
+            if (!hash1[rs[0].start]) hash1[rs[0].start] = {dict: reg, start: rs[0].start, ambis: []}
+            hash1[rs[0].start].ambis.push(rs)
         }
     })
     log('------- h1:')
     log(hash1)
+
+    let results = []
+    for (let pos in hash1) {
+        results.push(hash1[pos])
+    }
+
+    log(results)
     // 第三十各地区要切实把
 }
 
