@@ -32,7 +32,6 @@ function segmenter(str, cb) {
         let seg4cl = {}
         clauses.forEach(cl => {
             let gdocs = compactDocs(cl, docs)
-            // log('G', gdocs)
             seg4cl[cl] = longest(cl, gdocs)
         })
         cb(null, seg4cl)
@@ -75,8 +74,8 @@ function longest(str, gdocs) {
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
     let longests = _.filter(chains, ch => ch.length == min)
-    combined(min, longests)
-    return []
+    // combined(min, longests)
+    return combined(min, longests)
 }
 
 function combined(size, chains) {
@@ -92,8 +91,8 @@ function combined(size, chains) {
             hash[idx].push(ch[idx])
         })
     }
-    log(hash)
-    log('s', size)
+    // log(hash)
+    // log('s', size)
     let restricted = []
     for (let idx = 0; idx < size; idx++) {
         if (restricted.includes(idx)) continue
@@ -110,8 +109,8 @@ function combined(size, chains) {
             idx++
         }
     }
-    log('------- res:')
-    log(res)
+    // log('------- res:')
+    // log(res)
     let hash1 = {}
     res.forEach((rs, i) => {
         if (rs.length == 1) {
@@ -125,15 +124,16 @@ function combined(size, chains) {
             hash1[rs[0].start].ambis.push(rs)
         }
     })
-    log('------- h1:')
-    log(hash1)
+    // log('------- h1:')
+    // log(hash1)
 
     let results = []
     for (let pos in hash1) {
         results.push(hash1[pos])
     }
 
-    log(results)
+    // log(results)
+    return results
     // 第三十各地区要切实把
 }
 

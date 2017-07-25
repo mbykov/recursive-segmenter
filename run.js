@@ -29,7 +29,7 @@ console.time('_segmenter');
 
 segmenter(test, function(err, res) {
     log('SEG res: ==============>>');
-    p(res);
+    log(res);
     console.timeEnd('_segmenter');
 });
 
