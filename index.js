@@ -29,12 +29,14 @@ function segmenter(str, cb) {
     }).then(function (res) {
         if (!res || !res.rows) throw new Error('no term result')
         let docs = res.rows.map(function(row) { return row.doc})
-        let seg4cl = {}
+        let mess = []
         clauses.forEach(cl => {
+            // log(cl)
             let gdocs = compactDocs(cl, docs)
-            seg4cl[cl] = longest(cl, gdocs)
+            mess.push({cl: cl, segs: longest(cl, gdocs)})
+            // seg4cl[cl] = longest(cl, gdocs)
         })
-        cb(null, seg4cl)
+        cb(null, mess)
     }).catch(function (err) {
         log('queryTERMS ERRS', err);
         cb(err, null)
