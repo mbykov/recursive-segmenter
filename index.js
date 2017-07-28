@@ -21,12 +21,19 @@ module.exports = segmenter;
 
 function segmenter(str, cb) {
     let clauses = parseClause(str)
-    cb(null, clauses)
-    return
-
-    let keys = clauses.map(cl => parseKeys(cl))
+    // cb(null, clauses)
+    // return
+    let keys = []
+    clauses.forEach(clause => {
+        if (clause.sp) return
+        log(1, clause)
+        let ckeys = parseKeys(clause.cl)
+        keys.push(ckeys)
+    })
     keys = _.uniq(_.flatten(keys))
     // log('==UKEYS==', keys.toString())
+    // cb(null, keys)
+    // return
     remote.query('chinese/byDict', {
         keys: keys,
         include_docs: true
@@ -34,9 +41,12 @@ function segmenter(str, cb) {
         if (!res || !res.rows) throw new Error('no term result')
         let docs = res.rows.map(function(row) { return row.doc})
         let mess = []
-        clauses.forEach(cl => {
-            let gdocs = compactDocs(cl, docs)
-            mess.push({cl: cl, segs: longest(cl, gdocs), singles: singles(gdocs)})
+        clauses.forEach(clause => {
+            if (clause.sp) mess.push({sp: clause.sp})
+            else {
+                let gdocs = compactDocs(clause.cl, docs)
+                mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
+            }
         })
         cb(null, mess)
     }).catch(function (err) {
@@ -192,7 +202,10 @@ function parseClause(str) {
             space.push(sym)
         }
     })
-    if (clause) clauses.push(clause)
+    if (clause) {
+        let str = clause.join('')
+        clauses.push({cl: str})
+    }
     return clauses
 }
 
