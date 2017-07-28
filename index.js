@@ -1,4 +1,4 @@
-// morpheus v.0.4.0
+// morpheus for chinese
 
 const util = require('util')
 var _ = require('lodash');
@@ -6,15 +6,16 @@ var debug = (process.env.debug == 'true') ? true : false;
 
 const PouchDB = require('pouchdb')
 
-// let db_greek, db_flex
-
-// let db = new PouchDB('http://diglossa.org:5984/chinese', {
-let db = new PouchDB('http://localhost:5984/chinese', {
+let db = new PouchDB('http://diglossa.org:5984/chinese', {
+// let remote = new PouchDB('http://localhost:5984/chinese', {
     ajax: {
         cache: false,
         timeout: 60000
     }
 })
+
+// let db = new PouchDB('chinese')
+// db.sync(remote)
 
 module.exports = segmenter;
 
@@ -23,7 +24,7 @@ function segmenter(str, cb) {
     let keys = clauses.map(cl => parseKeys(cl))
     keys = _.uniq(_.flatten(keys))
     // log('==UKEYS==', keys.toString())
-    db.query('chinese/byDict', {
+    remote.query('chinese/byDict', {
         keys: keys,
         include_docs: true
     }).then(function (res) {
@@ -31,10 +32,8 @@ function segmenter(str, cb) {
         let docs = res.rows.map(function(row) { return row.doc})
         let mess = []
         clauses.forEach(cl => {
-            // log(cl)
             let gdocs = compactDocs(cl, docs)
-            mess.push({cl: cl, segs: longest(cl, gdocs)})
-            // seg4cl[cl] = longest(cl, gdocs)
+            mess.push({cl: cl, segs: longest(cl, gdocs), singles: singles(gdocs)})
         })
         cb(null, mess)
     }).catch(function (err) {
@@ -43,20 +42,14 @@ function segmenter(str, cb) {
     })
 }
 
-// 新华社北京
-// 第三十七次会议 并发表重要讲话
-// 第三十各地区要切实把 - должно быть два решения, поскольку 各地区要切实把 - два
-
-/*
-
-*/
+function singles(gdocs){
+    return _.filter(gdocs, doc => doc.size == 1)
+}
 
 function longest(str, gdocs) {
     let chains = []
     let rec = (gdocs, chain, pos) => {
-        // let starts = getByPos(gdoc, pos)
         let starts = _.filter(gdocs, doc => doc.start == pos)
-        // log('S', starts.length)
         starts.forEach(start => {
             chain = chain || []
             chain.push(start)
@@ -71,30 +64,23 @@ function longest(str, gdocs) {
     }
     rec(gdocs, null, 0)
 
-    // log('M', chains)
-    // return []
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
     let longests = _.filter(chains, ch => ch.length == min)
-    // combined(min, longests)
     return combined(min, longests)
 }
 
+
+
 function combined(size, chains) {
-    // log('CHs', chains)
-    // return
     let res = []
     let hash = {}
     for (let idx = 0; idx < size; idx++) {
-        // log('---', idx)
         if (!hash[idx] ) hash[idx] = []
         chains.forEach(ch => {
-            // log('C', ch[idx])
             hash[idx].push(ch[idx])
         })
     }
-    // log(hash)
-    // log('s', size)
     let restricted = []
     for (let idx = 0; idx < size; idx++) {
         if (restricted.includes(idx)) continue
@@ -111,42 +97,23 @@ function combined(size, chains) {
             idx++
         }
     }
-    // log('------- res:')
-    // log(res)
     let hash1 = {}
     res.forEach((rs, i) => {
         if (rs.length == 1) {
             hash1[rs[0].start] = rs[0]
-            // results.push({dict: rs[0].dict, rs: rs})
         } else {
             let reg = rs.map(r => r.dict).join('')
-            // if (!hash1[reg]) hash1[reg] = []
-            // hash1[reg].push(rs)
             if (!hash1[rs[0].start]) hash1[rs[0].start] = {dict: reg, start: rs[0].start, ambis: []}
             hash1[rs[0].start].ambis.push(rs)
         }
     })
-    // log('------- h1:')
-    // log(hash1)
 
     let results = []
     for (let pos in hash1) {
         results.push(hash1[pos])
     }
-
-    // log(results)
     return results
-    // 第三十各地区要切实把
 }
-
-// function getByPos(gdoc, pos) {
-//     let starts = []
-//     for (let key in gdoc) {
-//         let value = gdoc[key][0]
-//         if (value.start === pos) starts.push({dict: key, start: pos, size: value.size, docs: gdoc[key] })
-//     }
-//     return starts
-// }
 
 function compactDocs(str, docs) {
     docs.forEach((doc, idx) => {
@@ -166,9 +133,9 @@ function compactDocs(str, docs) {
             cdocs.push(res)
         })
     }
-    // log(_.sortBy(cdocs, 'start'))
     return _.sortBy(cdocs, 'start')
 }
+
 
 function parseKeys(str) {
     let h, t
@@ -196,19 +163,3 @@ function log() { console.log.apply(console, arguments); }
 function p(o) {
     console.log(util.inspect(o, false, null))
 }
-
-
-// console.log(util.inspect(myObject, {showHidden: false, depth: null}))
-
-// alternative shortcut
-
-/*
-
-  新华社北京 = 新华社 北京
-
-  We could emphasize some classes, for example, a verb. So, as I do in Greek for names.
-
-  But, probably, it is difficult to do this automatically, before a complete analysis of the proposal, which is currently not available for us.
-
-
-*/
