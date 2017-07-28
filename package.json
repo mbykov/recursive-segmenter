@@ -15,8 +15,10 @@
     "segmentation",
     "morphology"
   ],
-  "author": "Michael Bykov",
-  "license": "GNU GPL",
+    "author": {
+        "name": "Michael Bykov",
+        "email": "m.bykov@gmail.com"},
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/mbykov/hieroglyphic/issues"
   },
