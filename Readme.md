@@ -2,7 +2,7 @@
 
 east-hieroglyphic is for identifying separate words in Chinese or other eastern hieroglyphic text
 
-hieroglyphic is a core module of [Morpheus-chinese](https://github.com/mbykov/morpheus-chinese)
+hieroglyphic is a core module of [laoshi (Morpheus-chinese)](https://github.com/mbykov/laoshi)
 
 ## Installation
 

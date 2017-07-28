@@ -1,6 +1,6 @@
 {
   "name": "hieroglyphic",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "hieroglyphic is for identifying separate words in Chinese text",
   "main": "index.js",
   "scripts": {

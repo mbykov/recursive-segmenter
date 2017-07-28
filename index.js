@@ -6,7 +6,7 @@ var debug = (process.env.debug == 'true') ? true : false;
 
 const PouchDB = require('pouchdb')
 
-let db = new PouchDB('http://diglossa.org:5984/chinese', {
+let remote = new PouchDB('http://diglossa.org:5984/chinese', {
 // let remote = new PouchDB('http://localhost:5984/chinese', {
     ajax: {
         cache: false,
