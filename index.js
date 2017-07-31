@@ -1,21 +1,28 @@
 // morpheus for chinese
 
+const path = require('path')
 const util = require('util')
 var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
 const PouchDB = require('pouchdb')
+PouchDB.plugin(require('pouchdb-adapter-node-websql'))
 
 // let remote = new PouchDB('http://diglossa.org:5984/chinese', {
-let remote = new PouchDB('http://localhost:5984/chinese', {
-    ajax: {
-        cache: false,
-        timeout: 60000
-    }
-})
+// let remote = new PouchDB('http://localhost:5984/chinese', {
+//     ajax: {
+//         cache: false,
+//         timeout: 60000
+//     }
+// })
 
+let dpath = path.join(__dirname, 'pouchdb/chinese')
+log('DPATH=================', dpath)
+let remote = new PouchDB('http:\/\/localhost:5984/chinese')
+let db = PouchDB(dpath, {adapter: 'websql'})
 // let db = new PouchDB('chinese')
-// db.sync(remote)
+
+db.sync(remote)
 
 module.exports = segmenter;
 
@@ -26,13 +33,12 @@ function segmenter(str, cb) {
     let keys = []
     clauses.forEach(clause => {
         if (clause.sp) return
-        log(1, clause)
         let ckeys = parseKeys(clause.cl)
         keys.push(ckeys)
     })
     keys = _.uniq(_.flatten(keys))
     // log('==UKEYS==', keys.toString())
-    remote.query('chinese/byDict', {
+    db.query('chinese/byDict', {
         keys: keys,
         include_docs: true
     }).then(function (res) {
@@ -182,7 +188,6 @@ function parseClause(str) {
         if (/[\u4E00-\u9FFF]/.test(sym)) {
             if (!clause) clause = []
             clause.push(sym)
-            // log('SYM', clause)
             if (space) {
                 let str = space.join('')
                 clauses.push({sp:str})
@@ -213,17 +218,4 @@ function log() { console.log.apply(console, arguments); }
 
 function p(o) {
     console.log(util.inspect(o, false, null))
-}
-
-
-// punctuation \u002E\u002C\u0021\u003B\u00B7\u0020\u0027 - ... middle dot, space, apostrophe
-// parens ()[]{-/
-// \u0028\u0029\u005B\u005D\u007B\u007D\u002D\u002F
-// greek 0370-03FF 1F00–1FFF
-// diactitic 0300-036F
-function cleanGreek(str) {
-    let greek = str.replace(/[^\u002E\u002C\u0021\u003B\u00B7\u0020\u0027\u1F00-\u1FFF\u0370-\u03FF\u0300-\u036F]/gi, '')
-    greek = greek.trim().replace(/^\d+/, '').replace(/^\./, '').trim()
-    if (!/[\u1F00-\u1FFF\u0370-\u03FF\u0300-\u036F]/.test(greek[0])) return
-    return greek
 }

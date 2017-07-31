@@ -15,18 +15,22 @@
     "segmentation",
     "morphology"
   ],
-    "author": {
-        "name": "Michael Bykov",
-        "email": "m.bykov@gmail.com"},
+  "author": {
+    "name": "Michael Bykov",
+    "email": "m.bykov@gmail.com"
+  },
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/mbykov/hieroglyphic/issues"
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "pouchdb": "^6.2.0"
+    "pouchdb": "^6.2.0",
+    "pouchdb-adapter-node-websql": "^6.3.4"
   },
   "devDependencies": {
+    "electron": "^1.6.11",
+    "electron-rebuild": "^1.6.0",
     "mocha": "*",
     "should": "*"
   }
