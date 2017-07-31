@@ -6,8 +6,8 @@ var debug = (process.env.debug == 'true') ? true : false;
 
 const PouchDB = require('pouchdb')
 
-let remote = new PouchDB('http://diglossa.org:5984/chinese', {
-// let remote = new PouchDB('http://localhost:5984/chinese', {
+// let remote = new PouchDB('http://diglossa.org:5984/chinese', {
+let remote = new PouchDB('http://localhost:5984/chinese', {
     ajax: {
         cache: false,
         timeout: 60000
@@ -32,8 +32,6 @@ function segmenter(str, cb) {
     })
     keys = _.uniq(_.flatten(keys))
     // log('==UKEYS==', keys.toString())
-    // cb(null, keys)
-    // return
     remote.query('chinese/byDict', {
         keys: keys,
         include_docs: true
@@ -82,8 +80,6 @@ function longest(str, gdocs) {
     let longests = _.filter(chains, ch => ch.length == min)
     return combined(min, longests)
 }
-
-
 
 function combined(size, chains) {
     let res = []
