@@ -1,5 +1,5 @@
 /*
-  runner: node morph.js eva
+  runner: node run.js chinese test; ex: 第三十各地区
 */
 
 const util = require('util')
@@ -14,16 +14,6 @@ var fs = require('fs');
 var segmenter = require('./index');
 
 if (!test) log('?');
-
-// var samasa;
-// if (/[a-zA-Z]/.test(lat[0])) {
-//     samasa = salita.slp2sa(lat);
-// } else {
-//     samasa = lat;
-//     lat = salita.sa2slp(samasa);
-// }
-
-// log('_la_:', lat, '_sa_:', samasa);
 
 console.time('_segmenter');
 

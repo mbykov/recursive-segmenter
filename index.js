@@ -17,7 +17,7 @@ PouchDB.plugin(require('pouchdb-adapter-node-websql'))
 // })
 
 let dpath = path.join(__dirname, 'pouchdb/chinese')
-log('DPATH=================', dpath)
+
 let remote = new PouchDB('http:\/\/localhost:5984/chinese')
 let db = PouchDB(dpath, {adapter: 'websql'})
 // let db = new PouchDB('chinese')
