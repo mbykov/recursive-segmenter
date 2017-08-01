@@ -1,6 +1,6 @@
 {
   "name": "hieroglyphic",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "hieroglyphic is for identifying separate words in Chinese text",
   "main": "index.js",
   "scripts": {
@@ -25,8 +25,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "pouchdb": "^6.2.0",
-    "pouchdb-adapter-node-websql": "^6.3.4"
+    "pouchdb": "^6.2.0"
   },
   "devDependencies": {
     "electron": "^1.6.11",

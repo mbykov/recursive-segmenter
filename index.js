@@ -6,27 +6,28 @@ var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
 // const PouchDB = require('pouchdb')
-// PouchDB.plugin(require('pouchdb-adapter-node-websql'))
+// // PouchDB.plugin(require('pouchdb-adapter-node-websql'))
 
-// let remote = new PouchDB('http://diglossa.org:5984/chinese', {
-// let remote = new PouchDB('http://localhost:5984/chinese', {
-//     ajax: {
-//         cache: false,
-//         timeout: 60000
-//     }
-// })
+// // let remote = new PouchDB('http://diglossa.org:5984/chinese', {
+// // let remote = new PouchDB('http://localhost:5984/chinese', {
+// //     ajax: {
+// //         cache: false,
+// //         timeout: 60000
+// //     }
+// // })
 
-// let dpath = path.join(__dirname, 'pouchdb/chinese')
+// // let dpath = path.join(__dirname, 'pouchdb/chinese')
 
 // let remote = new PouchDB('http:\/\/localhost:5984/chinese')
-// let db = PouchDB(dpath, {adapter: 'websql'})
-// // let db = new PouchDB('chinese')
+// // let db = PouchDB(dpath, {adapter: 'websql'})
+// let db = new PouchDB('pouchdb/chinese')
 
 // db.sync(remote)
 
 module.exports = segmenter;
 
 function segmenter(db, str, cb) {
+    if (!db) return
     let clauses = parseClause(str)
     // cb(null, clauses)
     // return
