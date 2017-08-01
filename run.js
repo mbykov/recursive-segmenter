@@ -1,5 +1,5 @@
 /*
-  runner: node run.js chinese test; ex: 第三十各地区
+  runner: node run.js bchinese test; ex: 第三十各地区
 */
 
 const util = require('util')
