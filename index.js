@@ -139,7 +139,6 @@ function compactDocs(str, docs) {
         doc.simp = doc._id.split('-')[0]
         doc.type = doc._id.split('-')[1]
         doc.dict = (doc.trad && str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
-        log(doc)
     })
     let gdocs = _.groupBy(docs, 'dict')
     let cdocs = []
