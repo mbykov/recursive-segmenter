@@ -19,20 +19,17 @@ console.time('_segmenter');
 
 const PouchDB = require('pouchdb')
 // PouchDB.plugin(require('pouchdb-adapter-node-websql'))
-let dpath = path.join(__dirname, 'pouchdb/chinese')
+let dpath = path.join('/home/michael/.config/laoshi/pouchdb/chinese')
+log('DPATH', dpath)
 let remote = new PouchDB('http:\/\/localhost:5984/chinese')
 // let db = PouchDB(dpath, {adapter: 'websql'})
-let db = new PouchDB('pouchdb/chinese')
-// db.sync(remote)
-db.replicate.from(remote)
+let db = new PouchDB(dpath)
 
 segmenter(db, test, function(err, res) {
     log('SEG res: ==============>>');
     log(res);
     console.timeEnd('_segmenter');
 });
-
-console.timeEnd('_segmenter')
 
 function log() { console.log.apply(console, arguments); }
 

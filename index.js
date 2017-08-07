@@ -38,24 +38,28 @@ function segmenter(db, str, cb) {
         keys.push(ckeys)
     })
     keys = _.uniq(_.flatten(keys))
+    keys = keys.map(key => {return [key, 'bkrs'].join('-')})
     // log('==UKEYS==', keys.toString())
-    db.query('chinese/byDict', {
+    // db.query('chinese/byDict', {
+    db.allDocs({
         keys: keys,
         include_docs: true
     }).then(function (res) {
         if (!res || !res.rows) throw new Error('no term result')
         let docs = res.rows.map(function(row) { return row.doc})
+        docs = _.compact(docs)
         let mess = []
         clauses.forEach(clause => {
             if (clause.sp) mess.push({sp: clause.sp})
             else {
+                // 没头脑
                 let gdocs = compactDocs(clause.cl, docs)
                 mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
             }
         })
         cb(null, mess)
     }).catch(function (err) {
-        log('queryTERMS ERRS', err);
+        log('query SEGMENTER ERRS: ', err);
         cb(err, null)
     })
 }
