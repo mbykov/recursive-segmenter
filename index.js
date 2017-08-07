@@ -52,7 +52,6 @@ function segmenter(db, str, cb) {
         clauses.forEach(clause => {
             if (clause.sp) mess.push({sp: clause.sp})
             else {
-                // 没头脑
                 let gdocs = compactDocs(clause.cl, docs)
                 mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
             }
@@ -137,7 +136,10 @@ function combined(size, chains) {
 
 function compactDocs(str, docs) {
     docs.forEach((doc, idx) => {
-        doc.dict = (str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
+        doc.simp = doc._id.split('-')[0]
+        doc.type = doc._id.split('-')[1]
+        doc.dict = (doc.trad && str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
+        log(doc)
     })
     let gdocs = _.groupBy(docs, 'dict')
     let cdocs = []
