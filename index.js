@@ -29,8 +29,6 @@ module.exports = segmenter;
 function segmenter(db, str, cb) {
     if (!db) return
     let clauses = parseClause(str)
-    // cb(null, clauses)
-    // return
     let keys = []
     clauses.forEach(clause => {
         if (clause.sp) return
@@ -38,11 +36,15 @@ function segmenter(db, str, cb) {
         keys.push(ckeys)
     })
     keys = _.uniq(_.flatten(keys))
-    keys = keys.map(key => {return [key, 'cedict'].join('-')})
-    // log('==UKEYS==', keys.toString())
+    let dkeys = []
+    let dnames = ['cedict', 'bkrs']
+    dnames.forEach(dn => {
+        dkeys = dkeys.concat(keys.map(key => {return [key, dn].join('-')}))
+    })
+    // log('==UKEYS==', dkeys.toString())
     // db.query('chinese/byDict', {
     db.allDocs({
-        keys: keys,
+        keys: dkeys,
         include_docs: true
     }).then(function (res) {
         if (!res || !res.rows) throw new Error('no term result')
