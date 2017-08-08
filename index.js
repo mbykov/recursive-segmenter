@@ -38,7 +38,7 @@ function segmenter(db, str, cb) {
         keys.push(ckeys)
     })
     keys = _.uniq(_.flatten(keys))
-    keys = keys.map(key => {return [key, 'bkrs'].join('-')})
+    keys = keys.map(key => {return [key, 'cedict'].join('-')})
     // log('==UKEYS==', keys.toString())
     // db.query('chinese/byDict', {
     db.allDocs({
@@ -47,6 +47,7 @@ function segmenter(db, str, cb) {
     }).then(function (res) {
         if (!res || !res.rows) throw new Error('no term result')
         let docs = res.rows.map(function(row) { return row.doc})
+        // log('D', docs)
         docs = _.compact(docs)
         let mess = []
         clauses.forEach(clause => {
