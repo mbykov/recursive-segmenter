@@ -37,7 +37,7 @@ function segmenter(db, str, cb) {
     })
     keys = _.uniq(_.flatten(keys))
     let dkeys = []
-    let dnames = ['cedict', 'bkrs']
+    let dnames = ['cedict', 'bkrs', 'hande']
     dnames.forEach(dn => {
         dkeys = dkeys.concat(keys.map(key => {return [key, dn].join('-')}))
     })
