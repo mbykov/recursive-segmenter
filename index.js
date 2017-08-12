@@ -1,33 +1,13 @@
-// morpheus for chinese
+// morpheus-eastern segmenter
 
 const path = require('path')
 const util = require('util')
 var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
-// const PouchDB = require('pouchdb')
-// // PouchDB.plugin(require('pouchdb-adapter-node-websql'))
-
-// // let remote = new PouchDB('http://diglossa.org:5984/chinese', {
-// // let remote = new PouchDB('http://localhost:5984/chinese', {
-// //     ajax: {
-// //         cache: false,
-// //         timeout: 60000
-// //     }
-// // })
-
-// // let dpath = path.join(__dirname, 'pouchdb/chinese')
-
-// let remote = new PouchDB('http:\/\/localhost:5984/chinese')
-// // let db = PouchDB(dpath, {adapter: 'websql'})
-// let db = new PouchDB('pouchdb/chinese')
-
-// db.sync(remote)
-
 module.exports = segmenter;
 
-function segmenter(db, str, cb) {
-    if (!db) return
+function segmenter(dbs, str, cb) {
     let clauses = parseClause(str)
     let keys = []
     clauses.forEach(clause => {
@@ -36,15 +16,49 @@ function segmenter(db, str, cb) {
         keys.push(ckeys)
     })
     keys = _.uniq(_.flatten(keys))
-    let dkeys = []
-    let dnames = ['cedict', 'bkrs', 'hande']
-    dnames.forEach(dn => {
-        dkeys = dkeys.concat(keys.map(key => {return [key, dn].join('-')}))
+
+    let db = dbs['chinese-cedict']
+
+    // let dkeys = []
+    // let dnames = ['cedict', 'bkrs', 'hande']
+    // dnames.forEach(dn => {
+    //     dkeys = dkeys.concat(keys.map(key => {return [key, dn].join('-')}))
+    // })
+
+    log('==UKEYS==', keys.toString())
+
+    // db.allDocs({include_docs: true}).then(function (result) {
+    //     return Promise.all(result.rows.map(function (row) {
+    //         return db.remove(row.doc);
+    //     }));
+    // }).then(function (arrayOfResults) {
+    //     // All docs have really been removed() now!
+    // });
+    log('BEFORE', dbs.length)
+
+    Promise.all(dbs.map(function (db) {
+        return db.allDocs({
+            keys: keys,
+            include_docs: true
+        }).then(function (res) {
+            if (!res || !res.rows) throw new Error('no term result')
+            let docs = res.rows.map(function(row) { return row.doc})
+            docs.forEach(function(doc) { doc.dname = db.dname})
+            return docs
+        }).catch(function (err) {
+            log('E1', err)
+        })
+    })).then(function(arrayOfResults) {
+        log('A', arrayOfResults)
+    }).catch(function (err) {
+        log('E2', err)
     })
-    // log('==UKEYS==', dkeys.toString())
+
+
+    return
     // db.query('chinese/byDict', {
     db.allDocs({
-        keys: dkeys,
+        keys: keys,
         include_docs: true
     }).then(function (res) {
         if (!res || !res.rows) throw new Error('no term result')
@@ -139,9 +153,10 @@ function combined(size, chains) {
 
 function compactDocs(str, docs) {
     docs.forEach((doc, idx) => {
-        doc.simp = doc._id.split('-')[0]
-        doc.type = doc._id.split('-')[1]
-        doc.dict = (doc.trad && str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
+        // doc.simp = doc._id.split('-')[0]
+        // doc.type = doc._id.split('-')[1]
+        // doc.dict = (doc.trad && str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
+        doc.dict = doc._id
     })
     let gdocs = _.groupBy(docs, 'dict')
     let cdocs = []

@@ -24,6 +24,7 @@
     "url": "https://github.com/mbykov/hieroglyphic/issues"
   },
   "dependencies": {
+    "fs-jetpack": "^1.2.0",
     "lodash": "^4.17.4",
     "pouchdb": "^6.2.0"
   },
