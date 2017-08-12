@@ -17,7 +17,7 @@ function segmenter(dbs, str, cb) {
     })
     keys = _.uniq(_.flatten(keys))
 
-    let db = dbs['chinese-cedict']
+    // let db = dbs['chinese-cedict']
 
     // let dkeys = []
     // let dnames = ['cedict', 'bkrs', 'hande']
@@ -27,57 +27,70 @@ function segmenter(dbs, str, cb) {
 
     log('==UKEYS==', keys.toString())
 
-    // db.allDocs({include_docs: true}).then(function (result) {
-    //     return Promise.all(result.rows.map(function (row) {
-    //         return db.remove(row.doc);
-    //     }));
-    // }).then(function (arrayOfResults) {
-    //     // All docs have really been removed() now!
-    // });
-    log('BEFORE', dbs.length)
-
     Promise.all(dbs.map(function (db) {
         return db.allDocs({
             keys: keys,
             include_docs: true
         }).then(function (res) {
             if (!res || !res.rows) throw new Error('no term result')
-            let docs = res.rows.map(function(row) { return row.doc})
-            docs.forEach(function(doc) { doc.dname = db.dname})
-            return docs
+            let rdocs = _.compact(res.rows.map(row => { return row.doc}))
+            let docs = rdocs.map(rdoc => {
+                rdoc.docs.forEach(d => {d.dict = rdoc._id})
+                rdoc.docs.forEach(d => {if (!d.trad) d.trad = d.simp })
+                rdoc.docs.forEach(d => {d.dname = db.dname, d.type = db.dname.split('-')[0], d.name = db.dname.split('-')[1] })
+                return rdoc.docs
+            })
+            return _.flatten(_.compact(docs))
         }).catch(function (err) {
             log('E1', err)
         })
     })).then(function(arrayOfResults) {
-        log('A', arrayOfResults)
+        let flats = _.flatten(_.compact(arrayOfResults))
+        // log('A', flats )
+        // log('A', arrayOfResults )
+        let mess = message(clauses, flats)
+        // log('M', mess)
+        cb(null, mess)
     }).catch(function (err) {
         log('E2', err)
     })
 
 
-    return
+    // return
     // db.query('chinese/byDict', {
-    db.allDocs({
-        keys: keys,
-        include_docs: true
-    }).then(function (res) {
-        if (!res || !res.rows) throw new Error('no term result')
-        let docs = res.rows.map(function(row) { return row.doc})
-        // log('D', docs)
-        docs = _.compact(docs)
-        let mess = []
-        clauses.forEach(clause => {
-            if (clause.sp) mess.push({sp: clause.sp})
-            else {
-                let gdocs = compactDocs(clause.cl, docs)
-                mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
-            }
-        })
-        cb(null, mess)
-    }).catch(function (err) {
-        log('query SEGMENTER ERRS: ', err);
-        cb(err, null)
+    // db.allDocs({
+    //     keys: keys,
+    //     include_docs: true
+    // }).then(function (res) {
+    //     if (!res || !res.rows) throw new Error('no term result')
+    //     let docs = res.rows.map(function(row) { return row.doc})
+    //     // log('D', docs)
+    //     docs = _.compact(docs)
+    //     let mess = []
+    //     clauses.forEach(clause => {
+    //         if (clause.sp) mess.push({sp: clause.sp})
+    //         else {
+    //             let gdocs = compactDocs(clause.cl, docs)
+    //             mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
+    //         }
+    //     })
+    //     cb(null, mess)
+    // }).catch(function (err) {
+    //     log('query SEGMENTER ERRS: ', err);
+    //     cb(err, null)
+    // })
+}
+
+function message(clauses, docs) {
+    let mess = []
+    clauses.forEach(clause => {
+        if (clause.sp) mess.push({sp: clause.sp})
+        else {
+            let gdocs = compactDocs(clause.cl, docs)
+            mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
+        }
     })
+    return mess
 }
 
 function singles(gdocs){
@@ -152,12 +165,6 @@ function combined(size, chains) {
 }
 
 function compactDocs(str, docs) {
-    docs.forEach((doc, idx) => {
-        // doc.simp = doc._id.split('-')[0]
-        // doc.type = doc._id.split('-')[1]
-        // doc.dict = (doc.trad && str.indexOf(doc.trad) !== -1) ? doc.trad : doc.simp
-        doc.dict = doc._id
-    })
     let gdocs = _.groupBy(docs, 'dict')
     let cdocs = []
     for (let dict in gdocs) {
