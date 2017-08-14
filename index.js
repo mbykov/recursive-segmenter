@@ -16,6 +16,7 @@ function segmenter(dbs, str, cb) {
         keys.push(ckeys)
     })
     keys = _.uniq(_.flatten(keys))
+    if (!keys.length) return cb(null, null)
 
     // let db = dbs['chinese-cedict']
 
@@ -28,6 +29,7 @@ function segmenter(dbs, str, cb) {
     log('==UKEYS==', keys.toString())
 
     Promise.all(dbs.map(function (db) {
+        log('DB', db.dname)
         return db.allDocs({
             keys: keys,
             include_docs: true
@@ -46,7 +48,6 @@ function segmenter(dbs, str, cb) {
         })
     })).then(function(arrayOfResults) {
         let flats = _.flatten(_.compact(arrayOfResults))
-        // log('A', flats )
         // log('A', arrayOfResults )
         let mess = message(clauses, flats)
         // log('M', mess)
@@ -54,31 +55,6 @@ function segmenter(dbs, str, cb) {
     }).catch(function (err) {
         log('E2', err)
     })
-
-
-    // return
-    // db.query('chinese/byDict', {
-    // db.allDocs({
-    //     keys: keys,
-    //     include_docs: true
-    // }).then(function (res) {
-    //     if (!res || !res.rows) throw new Error('no term result')
-    //     let docs = res.rows.map(function(row) { return row.doc})
-    //     // log('D', docs)
-    //     docs = _.compact(docs)
-    //     let mess = []
-    //     clauses.forEach(clause => {
-    //         if (clause.sp) mess.push({sp: clause.sp})
-    //         else {
-    //             let gdocs = compactDocs(clause.cl, docs)
-    //             mess.push({cl: clause.cl, segs: longest(clause.cl, gdocs), singles: singles(gdocs)})
-    //         }
-    //     })
-    //     cb(null, mess)
-    // }).catch(function (err) {
-    //     log('query SEGMENTER ERRS: ', err);
-    //     cb(err, null)
-    // })
 }
 
 function message(clauses, docs) {
