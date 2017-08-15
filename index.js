@@ -21,7 +21,6 @@ function segmenter(dbs, str, cb) {
     // log('==UKEYS==', keys.toString())
 
     Promise.all(dbs.map(function (db) {
-        log('DB', db.dname)
         return db.allDocs({
             keys: keys,
             include_docs: true
@@ -86,7 +85,25 @@ function longest(str, gdocs) {
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
     let longests = _.filter(chains, ch => ch.length == min)
+    if (longests.length > 2) longests = selectLogestFirst(longests)
     return combined(min, longests)
+}
+
+function selectLogestFirst(longests) {
+    let res = []
+    let sizes = []
+    longests.forEach(chain => {
+        let firstTwo = chain.slice(0,2)
+        let size = firstTwo.map(seg => { return seg.dict})
+        sizes.push(size.join('').length)
+    })
+    let max = _.max(sizes)
+    longests.forEach(chain => {
+        let firstTwo = chain.slice(0,2)
+        let size = firstTwo.map(seg => { return seg.dict}).join('').length
+        if (size == max) res.push(chain)
+    })
+    return res
 }
 
 function combined(size, chains) {
