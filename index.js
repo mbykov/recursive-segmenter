@@ -18,15 +18,7 @@ function segmenter(dbs, str, cb) {
     keys = _.uniq(_.flatten(keys))
     if (!keys.length) return cb(null, null)
 
-    // let db = dbs['chinese-cedict']
-
-    // let dkeys = []
-    // let dnames = ['cedict', 'bkrs', 'hande']
-    // dnames.forEach(dn => {
-    //     dkeys = dkeys.concat(keys.map(key => {return [key, dn].join('-')}))
-    // })
-
-    log('==UKEYS==', keys.toString())
+    // log('==UKEYS==', keys.toString())
 
     Promise.all(dbs.map(function (db) {
         log('DB', db.dname)

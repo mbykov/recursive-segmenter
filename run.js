@@ -24,36 +24,49 @@ const PouchDB = require('pouchdb')
 // // let db = PouchDB(dpath, {adapter: 'websql'})
 // let db = new PouchDB(dpath)
 
-let dbnames = ['chinese-cedict', 'chinese-hande']
-let upath = '.config/morpheus-eastern'
+// let config = {
+//     dtype: 'chinese',
+//     default: 'cedict',
+//     file: 'morpheus-config.json'
+// }
 
-if (!dbnames) {
-    log('NO DBS')
-}
+// let dbnames = ['cedict', 'hande']
 
-let dbs = createDbs(dbnames)
+let config = {}
+config.dtype = 'chinese'
+let rootdir = path.join(__dirname, '../..')
+config.upath = '.config/morpheus-eastern'
+let folder = path.resolve(rootdir, config.upath, config.dtype)
+config.dbs = jetpack.list(folder)
+config.folder = folder
 
-function createDbs(dbnames) {
-    log('creating dbs:')
-    let dbs = []
-    dbnames.forEach(dn => {
-        let dpath = path.resolve(process.env.HOME, upath, dn)
+log(config.dbs)
+
+let dbs = createDbs(config)
+log('dbs', dbs.length)
+
+function createDbs(config) {
+    let dbs = config.dbs
+    let databases = []
+    dbs.forEach(dn => {
+        let dpath = path.resolve(config.folder, dn)
         let dstate = jetpack.exists(dpath)
         if (dstate) {
             let db = new PouchDB(dpath)
             db.dname = dn
-            dbs.push(db)
+            databases.push(db)
             // log('D', db)
         } else {
             log('NO DB', dn, dpath)
         }
     })
-    return dbs
+    return databases
 }
+
 
 segmenter(dbs, test, function(err, res) {
     log('SEG res: ==============>>');
-    p(res);
+    log(res);
     console.timeEnd('_segmenter');
 });
 
