@@ -51,7 +51,7 @@ function createDbs(config) {
 
 segmenter(dbs, test, function(err, res) {
     log('SEG res: ==============>>');
-    // console.log(util.inspect(res, {showHidden: false, depth: 3}))
+    console.log(util.inspect(res, {showHidden: false, depth: 3}))
     // console.log(util.inspect(res[0].segs[3], {showHidden: false, depth: 3}))
     console.timeEnd('_segmenter');
 });

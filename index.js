@@ -136,7 +136,7 @@ function combined(str, size, chains) {
             res.push(ambi)
         }
     }
-    console.log(util.inspect(res, {showHidden: false, depth: 2}))
+    // console.log(util.inspect(res, {showHidden: false, depth: 2}))
     return res
 }
 
