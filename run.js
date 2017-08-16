@@ -16,21 +16,6 @@ if (!test) log('?');
 console.time('_segmenter');
 
 const PouchDB = require('pouchdb')
-// // PouchDB.plugin(require('pouchdb-adapter-node-websql'))
-
-// let dpath = path.join('/home/michael/.config/laoshi/pouchdb/chinese')
-// log('DPATH', dpath)
-// let remote = new PouchDB('http:\/\/localhost:5984/chinese')
-// // let db = PouchDB(dpath, {adapter: 'websql'})
-// let db = new PouchDB(dpath)
-
-// let config = {
-//     dtype: 'chinese',
-//     default: 'cedict',
-//     file: 'morpheus-config.json'
-// }
-
-// let dbnames = ['cedict', 'hande']
 
 let config = {}
 config.dtype = 'chinese'
@@ -66,9 +51,6 @@ function createDbs(config) {
 
 segmenter(dbs, test, function(err, res) {
     log('SEG res: ==============>>');
-    // log(res[0].segs);
-    // log('A', res[0].segs[0].ambis);
-    // log(res);
     console.log(util.inspect(res, {showHidden: false, depth: 3}))
     console.timeEnd('_segmenter');
 });
