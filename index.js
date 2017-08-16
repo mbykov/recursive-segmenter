@@ -112,8 +112,8 @@ function combined(str, size, chains) {
         if (dicts.length == 1) {
             res.push(curs[0])
         } else {
-            let start = idx
-            let finish = 0
+            let start = _.sum(res.map(seg => { return seg.dict.length}))
+            let finish = start +1
             let ambis = []
             curs.forEach((cur, idy) => {
                 ambis.push([cur])
@@ -123,9 +123,9 @@ function combined(str, size, chains) {
                 let dicts = _.uniq(hash[idy].map(seg => seg.dict))
                 if (dicts.length > 1) {
                     idx++
-                    finish = idx + idy
                     let curs = hash[idy]
                     curs.forEach((cur, idz) => {
+                        if (idz == 0) finish += cur.dict.length
                         ambis[idz].push(cur)
                     })
                 } else {
@@ -136,51 +136,8 @@ function combined(str, size, chains) {
             res.push(ambi)
         }
     }
-    // console.log(util.inspect(res, {showHidden: false, depth: 2}))
+    console.log(util.inspect(res, {showHidden: false, depth: 2}))
     return res
-}
-
-function combined_(size, chains) {
-    let res = []
-    let hash = {}
-    for (let idx = 0; idx < size; idx++) {
-        if (!hash[idx] ) hash[idx] = []
-        chains.forEach(ch => {
-            hash[idx].push(ch[idx])
-        })
-    }
-    // let restricted = []
-    for (let idx = 0; idx < size; idx++) {
-        // if (restricted.includes(idx)) continue
-        let dicts = _.uniq(hash[idx].map(seg => seg.dict))
-        let curs = hash[idx]
-        if (dicts.length == 1) {
-            res.push([curs[0]])
-        } else {
-            let nexts = hash[idx+1]
-            dicts.forEach((dict, idy) => {
-                let r = [curs[idy], nexts[idy]]
-                res.push(r)
-            })
-            idx++
-        }
-    }
-    let hash1 = {}
-    res.forEach((rs, i) => {
-        if (rs.length == 1) {
-            hash1[rs[0].start] = rs[0]
-        } else {
-            let reg = rs.map(r => r.dict).join('')
-            if (!hash1[rs[0].start]) hash1[rs[0].start] = {dict: reg, start: rs[0].start, ambis: []}
-            hash1[rs[0].start].ambis.push(rs)
-        }
-    })
-
-    let results = []
-    for (let pos in hash1) {
-        results.push(hash1[pos])
-    }
-    return results
 }
 
 function compactDocs(str, docs) {
@@ -229,8 +186,13 @@ function parseKeys(str) {
 // CJK Compatibility Ideographs            F900-FAFF   Duplicates, unifiable variants, corporate characters
 // CJK Compatibility Ideographs Supplement 2F800-2FA1F Unifiable variants
 
+// a = "感”。
+
+ // 五年"
+
 function parseClause(str) {
     // return str.split(' ')
+    // str = str.replace('\n', '[BR]')
     let clauses = []
     let syms = str.split('')
     let clause, space
