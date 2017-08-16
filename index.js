@@ -84,18 +84,18 @@ function longest(str, gdocs) {
 
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
-    log('M', min)
+    // log('M', min)
     // 和成功实践 - longest.size = 3
     let longests = _.filter(chains, ch => ch.length == min)
-    log('L', longests)
-    log('LS', longests.length)
-    longests = combined(min, longests)
+    // log('L', longests)
+    // log('LS', longests.length)
+    longests = combined(str, min, longests)
     return longests
 }
 // 胆探索和成功实践
 // 从人民
 
-function combined(size, chains) {
+function combined(str, size, chains) {
     let res = []
     let hash = {}
     for (let idx = 0; idx < size; idx++) {
@@ -104,24 +104,26 @@ function combined(size, chains) {
             hash[idx].push(ch[idx])
         })
     }
-    log('H', hash)
+    // log('H', hash)
     let cont = true
     for (let idx = 0; idx < size; idx++) {
         let curs = hash[idx]
         let dicts = _.uniq(hash[idx].map(seg => seg.dict))
         if (dicts.length == 1) {
-            res.push([curs[0]])
+            res.push(curs[0])
         } else {
+            let start = idx
+            let finish = 0
             let ambis = []
             curs.forEach((cur, idy) => {
-                cur.idy = idy
                 ambis.push([cur])
             })
             for (let idy = idx+1; idy < size; idy++) {
                 if (!cont) continue
-                idx++
                 let dicts = _.uniq(hash[idy].map(seg => seg.dict))
                 if (dicts.length > 1) {
+                    idx++
+                    finish = idx + idy
                     let curs = hash[idy]
                     curs.forEach((cur, idz) => {
                         ambis[idz].push(cur)
@@ -130,10 +132,11 @@ function combined(size, chains) {
                     cont = false
                 }
             }
-            res.push(ambis)
+            let ambi = {dict: str.slice(start, finish), start: start, size: finish - start, ambis: ambis}
+            res.push(ambi)
         }
     }
-    console.log(util.inspect(res, {showHidden: false, depth: 3}))
+    // console.log(util.inspect(res, {showHidden: false, depth: 2}))
     return res
 }
 

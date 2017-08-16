@@ -69,6 +69,7 @@ segmenter(dbs, test, function(err, res) {
     // log(res[0].segs);
     // log('A', res[0].segs[0].ambis);
     // log(res);
+    console.log(util.inspect(res, {showHidden: false, depth: 3}))
     console.timeEnd('_segmenter');
 });
 
