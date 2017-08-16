@@ -66,7 +66,9 @@ function createDbs(config) {
 
 segmenter(dbs, test, function(err, res) {
     log('SEG res: ==============>>');
-    log(res);
+    // log(res[0].segs);
+    // log('A', res[0].segs[0].ambis);
+    // log(res);
     console.timeEnd('_segmenter');
 });
 

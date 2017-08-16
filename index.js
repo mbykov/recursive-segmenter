@@ -84,27 +84,16 @@ function longest(str, gdocs) {
 
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
+    log('M', min)
+    // 和成功实践 - longest.size = 3
     let longests = _.filter(chains, ch => ch.length == min)
-    if (longests.length > 2) longests = selectLogestFirst(longests)
-    return combined(min, longests)
+    log('L', longests)
+    log('LS', longests.length)
+    longests = combined(min, longests)
+    return longests
 }
-
-function selectLogestFirst(longests) {
-    let res = []
-    let sizes = []
-    longests.forEach(chain => {
-        let firstTwo = chain.slice(0,2)
-        let size = firstTwo.map(seg => { return seg.dict})
-        sizes.push(size.join('').length)
-    })
-    let max = _.max(sizes)
-    longests.forEach(chain => {
-        let firstTwo = chain.slice(0,2)
-        let size = firstTwo.map(seg => { return seg.dict}).join('').length
-        if (size == max) res.push(chain)
-    })
-    return res
-}
+// 胆探索和成功实践
+// 从人民
 
 function combined(size, chains) {
     let res = []
@@ -115,9 +104,51 @@ function combined(size, chains) {
             hash[idx].push(ch[idx])
         })
     }
-    let restricted = []
+    log('H', hash)
+    let cont = true
     for (let idx = 0; idx < size; idx++) {
-        if (restricted.includes(idx)) continue
+        let curs = hash[idx]
+        let dicts = _.uniq(hash[idx].map(seg => seg.dict))
+        if (dicts.length == 1) {
+            res.push([curs[0]])
+        } else {
+            let ambis = []
+            curs.forEach((cur, idy) => {
+                cur.idy = idy
+                ambis.push([cur])
+            })
+            for (let idy = idx+1; idy < size; idy++) {
+                if (!cont) continue
+                idx++
+                let dicts = _.uniq(hash[idy].map(seg => seg.dict))
+                if (dicts.length > 1) {
+                    let curs = hash[idy]
+                    curs.forEach((cur, idz) => {
+                        ambis[idz].push(cur)
+                    })
+                } else {
+                    cont = false
+                }
+            }
+            res.push(ambis)
+        }
+    }
+    console.log(util.inspect(res, {showHidden: false, depth: 3}))
+    return res
+}
+
+function combined_(size, chains) {
+    let res = []
+    let hash = {}
+    for (let idx = 0; idx < size; idx++) {
+        if (!hash[idx] ) hash[idx] = []
+        chains.forEach(ch => {
+            hash[idx].push(ch[idx])
+        })
+    }
+    // let restricted = []
+    for (let idx = 0; idx < size; idx++) {
+        // if (restricted.includes(idx)) continue
         let dicts = _.uniq(hash[idx].map(seg => seg.dict))
         let curs = hash[idx]
         if (dicts.length == 1) {
