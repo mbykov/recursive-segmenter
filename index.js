@@ -7,8 +7,7 @@ var debug = (process.env.debug == 'true') ? true : false;
 
 module.exports = segmenter;
 
-function segmenter(dbs, str, cb) {
-    let clauses = parseClause(str)
+function segmenter(dbs, clauses, cb) {
     let keys = []
     clauses.forEach(clause => {
         if (clause.sp) return
@@ -87,15 +86,32 @@ function longest(str, gdocs) {
     // log('M', min)
     // 和成功实践 - longest.size = 3
     let longests = _.filter(chains, ch => ch.length == min)
-    // log('L', longests)
+    // longests = _.uniq(longests.map(lng => { return JSON.stringify(lng)})).map(lng => { return JSON.parse(lng)})
+    log('L', longests)
     // log('LS', longests.length)
-    longests = combined(str, min, longests)
-    return longests
+    let clean = combined(min, longests)
+    log('L2', longests)
+    setDict(str, clean)
+    return clean
 }
 // 胆探索和成功实践
 // 从人民
+// 在构成上可分为单纯字和合体字两大类
 
-function combined(str, size, chains) {
+function setDict(str, chain) {
+    chain.forEach((seg, idx) => {
+        if (seg.dict) return
+        let start = (chain[idx-1]) ? chain[idx-1].start + chain[idx-1].size : 0
+        let finish = (chain[idx+1]) ? chain[idx+1].start + chain[idx+1].size : str.length
+        let dict = str.slice(start, finish)
+        seg.dict = dict
+        seg.start = start
+        // seg.finish = finish
+        seg.size = dict.length
+    })
+}
+
+function combined(size, chains) {
     let res = []
     let hash = {}
     for (let idx = 0; idx < size; idx++) {
@@ -104,16 +120,18 @@ function combined(str, size, chains) {
             hash[idx].push(ch[idx])
         })
     }
-    // log('H', hash)
+    log('H', hash)
     let cont = true
     for (let idx = 0; idx < size; idx++) {
         let curs = hash[idx]
         let dicts = _.uniq(hash[idx].map(seg => seg.dict))
         if (dicts.length == 1) {
+            cont = true
             res.push(curs[0])
         } else {
-            let start = _.sum(res.map(seg => { return seg.dict.length}))
-            let finish = start +1
+            // let start = _.sum(res.map(seg => { return seg.dict.length}))
+            // let finish = start +1
+            let finish = 0
             let ambis = []
             curs.forEach((cur, idy) => {
                 ambis.push([cur])
@@ -125,14 +143,18 @@ function combined(str, size, chains) {
                     idx++
                     let curs = hash[idy]
                     curs.forEach((cur, idz) => {
-                        if (idz == 0) finish += cur.dict.length
+                        // if (idz == 0) finish += cur.dict.length
+                        // finish = (finish >= cur.dict.start) ? finish : cur.dict.start
+                        // log('idx', idx,  'D', cur.dict, 'F', finish, 'S', cur.start)
+                        // finish = _.max(finish, cur.start)
                         ambis[idz].push(cur)
                     })
                 } else {
                     cont = false
                 }
             }
-            let ambi = {dict: str.slice(start, finish), start: start, size: finish - start, ambis: ambis}
+            // let ambi = {dict: str.slice(start, finish), start: start, size: finish - start, ambis: ambis}
+            let ambi = {ambis: ambis}
             res.push(ambi)
         }
     }

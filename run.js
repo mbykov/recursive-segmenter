@@ -6,6 +6,7 @@
 const path = require('path')
 const util = require('util')
 const jetpack = require("fs-jetpack")
+const band = require('speckled-band')
 var _ = require('lodash');
 var test = process.argv.slice(2)[0] || false;
 
@@ -48,13 +49,20 @@ function createDbs(config) {
     return databases
 }
 
+let code = 'zh'
+band(code, test, function(err, clauses) {
+    if (err) return
+    let clean = clauses.map(cl => {return cl.cl }).join('')
+    if (!clean.length) return
+    segmenter(dbs, clauses, function(err, res) {
+        log('SEG res: ==============>>');
+        // console.log(util.inspect(res, {showHidden: false, depth: 3}))
+        console.log(util.inspect(res[0].segs, {showHidden: false, depth: 2}))
+        console.timeEnd('_segmenter');
+    });
+})
 
-segmenter(dbs, test, function(err, res) {
-    log('SEG res: ==============>>');
-    console.log(util.inspect(res, {showHidden: false, depth: 3}))
-    // console.log(util.inspect(res[0].segs[3], {showHidden: false, depth: 3}))
-    console.timeEnd('_segmenter');
-});
+
 
 function log() { console.log.apply(console, arguments); }
 

@@ -29,6 +29,7 @@
     "pouchdb": "^6.2.0"
   },
   "devDependencies": {
+      "speckled-band": "^0.2.0",
     "electron": "^1.6.11",
     "electron-rebuild": "^1.6.0",
     "mocha": "*",
