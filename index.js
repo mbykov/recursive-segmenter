@@ -85,12 +85,12 @@ function longest(str, gdocs) {
     let min = _.min(sizes)
     // log('M', min)
     // 和成功实践 - longest.size = 3
-    let longests = _.filter(chains, ch => ch.length == min)
-    // longests = _.uniq(longests.map(lng => { return JSON.stringify(lng)})).map(lng => { return JSON.parse(lng)})
-    log('L', longests)
-    // log('LS', longests.length)
-    let clean = combined(min, longests)
-    log('L2', longests)
+    let shortests = _.filter(chains, ch => ch.length == min)
+    // shortests = _.uniq(shortests.map(lng => { return JSON.stringify(lng)})).map(lng => { return JSON.parse(lng)})
+    // log('L', shortests)
+    // log('LS', shortests.length)
+    let clean = combined_(min, shortests)
+    // log('CL', clean)
     setDict(str, clean)
     return clean
 }
@@ -102,7 +102,7 @@ function setDict(str, chain) {
     chain.forEach((seg, idx) => {
         if (seg.dict) return
         let start = (chain[idx-1]) ? chain[idx-1].start + chain[idx-1].size : 0
-        let finish = (chain[idx+1]) ? chain[idx+1].start + chain[idx+1].size : str.length
+        let finish = (chain[idx+1]) ? chain[idx+1].start : str.length
         let dict = str.slice(start, finish)
         seg.dict = dict
         seg.start = start
@@ -111,7 +111,7 @@ function setDict(str, chain) {
     })
 }
 
-function combined(size, chains) {
+function combined_(size, chains) {
     let res = []
     let hash = {}
     for (let idx = 0; idx < size; idx++) {
@@ -120,18 +120,17 @@ function combined(size, chains) {
             hash[idx].push(ch[idx])
         })
     }
-    log('H', hash)
+    // log('H', hash)
+
     let cont = true
     for (let idx = 0; idx < size; idx++) {
         let curs = hash[idx]
         let dicts = _.uniq(hash[idx].map(seg => seg.dict))
+        // let dicts = _.keys(curs)
         if (dicts.length == 1) {
             cont = true
             res.push(curs[0])
         } else {
-            // let start = _.sum(res.map(seg => { return seg.dict.length}))
-            // let finish = start +1
-            let finish = 0
             let ambis = []
             curs.forEach((cur, idy) => {
                 ambis.push([cur])
@@ -143,22 +142,25 @@ function combined(size, chains) {
                     idx++
                     let curs = hash[idy]
                     curs.forEach((cur, idz) => {
-                        // if (idz == 0) finish += cur.dict.length
-                        // finish = (finish >= cur.dict.start) ? finish : cur.dict.start
-                        // log('idx', idx,  'D', cur.dict, 'F', finish, 'S', cur.start)
-                        // finish = _.max(finish, cur.start)
                         ambis[idz].push(cur)
                     })
                 } else {
                     cont = false
                 }
             }
-            // let ambi = {dict: str.slice(start, finish), start: start, size: finish - start, ambis: ambis}
-            let ambi = {ambis: ambis}
-            res.push(ambi)
+            // log('AMBIS', ambis)
+            let uambis = {}
+            ambis.forEach(ambi => {
+                let key = ambi.map(seg => { return seg.dict}).join('-')
+                uambis[key] = ambi
+            })
+            // log('UAMBIS', uambis)
+            let clean = _.values(uambis)
+            // log('CLEAN', clean)
+            // let ambi = {ambis: ambis}
+            res.push({ambis: clean})
         }
     }
-    // console.log(util.inspect(res, {showHidden: false, depth: 2}))
     return res
 }
 

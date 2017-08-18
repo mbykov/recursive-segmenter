@@ -56,8 +56,8 @@ band(code, test, function(err, clauses) {
     if (!clean.length) return
     segmenter(dbs, clauses, function(err, res) {
         log('SEG res: ==============>>');
-        // console.log(util.inspect(res, {showHidden: false, depth: 3}))
-        console.log(util.inspect(res[0].segs, {showHidden: false, depth: 2}))
+        console.log(util.inspect(res, {showHidden: false, depth: 3}))
+        // console.log(util.inspect(res[0].segs, {showHidden: false, depth: 2}))
         console.timeEnd('_segmenter');
     });
 })
