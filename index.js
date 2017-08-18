@@ -199,57 +199,6 @@ function parseKeys(str) {
     return padas
 }
 
-// https://stackoverflow.com/questions/1366068/whats-the-complete-range-for-chinese-characters-in-unicode
-// ck                                   Range       Comment
-// CJK Unified Ideographs                  4E00-9FFF   Common
-// CJK Unified Ideographs Extension A      3400-4DBF   Rare
-// CJK Unified Ideographs Extension B      20000-2A6DF Rare, historic
-// CJK Unified Ideographs Extension C      2A700–2B73F Rare, historic
-// CJK Unified Ideographs Extension D      2B740–2B81F Uncommon, some in current use
-// CJK Unified Ideographs Extension E      2B820–2CEAF Rare, historic
-// CJK Compatibility Ideographs            F900-FAFF   Duplicates, unifiable variants, corporate characters
-// CJK Compatibility Ideographs Supplement 2F800-2FA1F Unifiable variants
-
-// a = "感”。
-
- // 五年"
-
-function parseClause(str) {
-    // return str.split(' ')
-    // str = str.replace('\n', '[BR]')
-    let clauses = []
-    let syms = str.split('')
-    let clause, space
-    syms.forEach(sym => {
-        if (/[\u4E00-\u9FFF]/.test(sym)) {
-            if (!clause) clause = []
-            clause.push(sym)
-            if (space) {
-                let str = space.join('')
-                clauses.push({sp:str})
-                space = null
-            }
-        } else {
-            if (clause) {
-                let str = clause.join('')
-                clauses.push({cl: str})
-                clause = null
-            }
-            if (!space) space = []
-            space.push(sym)
-        }
-    })
-    if (clause) {
-        let str = clause.join('')
-        clauses.push({cl: str})
-    }
-    return clauses
-}
-
-// 第三十各地区要切 实把
-// 新华社北京
-// 第三十七次会议 并发表重要讲话
-
 function log() { console.log.apply(console, arguments); }
 
 function p(o) {
