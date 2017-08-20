@@ -6,6 +6,8 @@ var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
 export function segmenter(str, gdocs) {
+    // let gdocs = compactDocs(docs)
+    // log('=GD=', gdocs)
     let chains = []
     let rec = (gdocs, chain, pos) => {
         let starts = _.filter(gdocs, doc => doc.start == pos)
@@ -25,7 +27,7 @@ export function segmenter(str, gdocs) {
 
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
-    // log('M', min)
+    log('M', min)
     let shortests = _.filter(chains, ch => ch.length == min)
     // log('LS', shortests.length)
     let clean = combined(min, shortests)
@@ -102,23 +104,23 @@ function combined(size, chains) {
     return res
 }
 
-// function compactDocs(str, docs) {
-//     let gdocs = _.groupBy(docs, 'dict')
-//     let cdocs = []
-//     for (let dict in gdocs) {
-//         let indices = []
-//         let idx = str.indexOf(dict)
-//         while (idx != -1) {
-//             indices.push(idx);
-//             idx = str.indexOf(dict, idx + 1);
-//         }
-//         indices.forEach(idx => {
-//             let res = {dict: dict, size: dict.length, start: idx, docs: gdocs[dict]}
-//             cdocs.push(res)
-//         })
-//     }
-//     return _.sortBy(cdocs, 'start')
-// }
+function compactDocs(str, docs) {
+    let gdocs = _.groupBy(docs, 'dict')
+    let cdocs = []
+    for (let dict in gdocs) {
+        let indices = []
+        let idx = str.indexOf(dict)
+        while (idx != -1) {
+            indices.push(idx);
+            idx = str.indexOf(dict, idx + 1);
+        }
+        indices.forEach(idx => {
+            let res = {dict: dict, size: dict.length, start: idx, docs: gdocs[dict]}
+            cdocs.push(res)
+        })
+    }
+    return _.sortBy(cdocs, 'start')
+}
 
 
 // function parseKeys(str) {
