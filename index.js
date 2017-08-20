@@ -5,59 +5,6 @@ const util = require('util')
 var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
-// module.exports = segmenter;
-
-// function segmenter(dbs, clauses, cb) {
-//     let keys = []
-//     clauses.forEach(clause => {
-//         if (clause.sp) return
-//         let ckeys = parseKeys(clause.cl)
-//         keys.push(ckeys)
-//     })
-//     keys = _.uniq(_.flatten(keys))
-//     if (!keys.length) return cb(null, null)
-//     // log('==UKEYS==', keys.toString())
-
-//     Promise.all(dbs.map(function (db) {
-//         return db.allDocs({
-//             keys: keys,
-//             include_docs: true
-//         }).then(function (res) {
-//             if (!res || !res.rows) throw new Error('no term result')
-//             let rdocs = _.compact(res.rows.map(row => { return row.doc}))
-//             let docs = rdocs.map(rdoc => {
-//                 rdoc.docs.forEach(d => {d.dict = rdoc._id})
-//                 rdoc.docs.forEach(d => {if (!d.trad) d.trad = d.simp })
-//                 rdoc.docs.forEach(d => {d.dname = db.dname, d.type = db.dname.split('-')[0], d.name = db.dname.split('-')[1] })
-//                 return rdoc.docs
-//             })
-//             return _.flatten(_.compact(docs))
-//         }).catch(function (err) {
-//             log('E1', err)
-//         })
-//     })).then(function(arrayOfResults) {
-//         let flats = _.flatten(_.compact(arrayOfResults))
-//         // log('A', arrayOfResults )
-//         let mess = message(clauses, flats)
-//         // log('M', mess)
-//         cb(null, mess)
-//     }).catch(function (err) {
-//         log('E2', err)
-//     })
-// }
-
-function message(clauses, docs) {
-    let mess = []
-    clauses.forEach(clause => {
-        if (clause.sp) mess.push({sp: clause.sp})
-        else {
-            let gdocs = compactDocs(clause.cl, docs)
-            mess.push({cl: clause.cl, segs: segmenter(clause.cl, gdocs), gdocs: gdocs }) // , singles: singles(gdocs)
-        }
-    })
-    return mess
-}
-
 export function segmenter(str, gdocs) {
     let chains = []
     let rec = (gdocs, chain, pos) => {
@@ -83,15 +30,14 @@ export function segmenter(str, gdocs) {
     // log('LS', shortests.length)
     let clean = combined(min, shortests)
     // log('CL', clean)
-    setDict(str, clean)
+    setDict(str, clean, gdocs)
     return clean
 }
-// 胆探索和成功实践
-// 从人民
-// 在构成上可分为单纯字和合体字两大类
 
-function setDict(str, chain) {
+function setDict(str, chain, gdocs) {
     chain.forEach((seg, idx) => {
+        let sidx = _.findIndex(gdocs, doc => { return doc.dict == seg.dict })
+        seg.idx = sidx
         if (seg.dict) return
         let start = (chain[idx-1]) ? chain[idx-1].start + chain[idx-1].size : 0
         let finish = (chain[idx+1]) ? chain[idx+1].start : str.length
