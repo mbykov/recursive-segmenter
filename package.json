@@ -1,6 +1,6 @@
 {
   "name": "recursive-segmenter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "recursive segmenter is for recursively identifying separate words in Chinese or any eastern text",
   "main": "index.js",
   "scripts": {
@@ -24,15 +24,10 @@
     "url": "https://github.com/mbykov/recursive-segmenter/issues"
   },
   "dependencies": {
-    "fs-jetpack": "^1.2.0",
-    "lodash": "^4.17.4",
-    "pouchdb": "^6.2.0"
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
-      "speckled-band": "^0.2.0",
-    "electron": "^1.6.11",
-    "electron-rebuild": "^1.6.0",
-    "mocha": "*",
-    "should": "*"
+      "mocha": "*",
+      "should": "*"
   }
 }
