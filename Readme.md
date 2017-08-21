@@ -6,12 +6,15 @@ recursive segmenter is a core module of [Morpheus-eastern](https://github.com/mb
 
 ## Installation
 
+````javascript
+    npm install --save recursive-segmenter
+````
+
 ## API
 
 ````javascript
     var segmenter = import {segmenter} from 'recursive-segmenter'
 ````
-
 
 ````javascript
     let res = segmenter(str, docs)
