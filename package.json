@@ -1,14 +1,14 @@
 {
-  "name": "hieroglyphic",
-  "version": "0.2.9",
-  "description": "hieroglyphic is for identifying separate words in Chinese text",
+  "name": "recursive-segmenter",
+  "version": "0.3.0",
+  "description": "recursive segmenter is for recursively identifying separate words in Chinese or any eastern text",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/mbykov/hieroglyphic.git"
+    "url": "http://github.com/mbykov/recursive-segmenter.git"
   },
   "keywords": [
     "chinese",
@@ -21,7 +21,7 @@
   },
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/mbykov/hieroglyphic/issues"
+    "url": "https://github.com/mbykov/recursive-segmenter/issues"
   },
   "dependencies": {
     "fs-jetpack": "^1.2.0",

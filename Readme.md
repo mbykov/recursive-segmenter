@@ -1,22 +1,20 @@
-# hieroglyphic.js
+# recursive-segmenter.js
 
-east-hieroglyphic is for identifying separate words in Chinese or other eastern hieroglyphic text
+recursive segmenter is for recursively identifying separate words in Chinese or any eastern text
 
-hieroglyphic is a core module of [laoshi (Morpheus-chinese)](https://github.com/mbykov/laoshi)
+recursive segmenter is a core module of [Morpheus-eastern](https://github.com/mbykov/morpheus-eastern)
 
 ## Installation
 
 ## API
 
 ````javascript
-    var hieroglyphic = require('hieroglyphic');
+    var segmenter = import {segmenter} from 'recursive-segmenter'
 ````
 
 
 ````javascript
-    hieroglyphic.query(sentence, function(results) {
-       // process results
-    })
+    let res = segmenter(str, docs)
 ````
 
 

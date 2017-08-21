@@ -7,7 +7,6 @@ var debug = (process.env.debug == 'true') ? true : false;
 
 export function segmenter(str, docs) {
     let gdocs = compactDocs(str, docs)
-    // log('=GD=>', gdocs)
     let chains = []
     let rec = (gdocs, chain, pos) => {
         let starts = _.filter(gdocs, doc => doc.start == pos)
@@ -25,14 +24,10 @@ export function segmenter(str, docs) {
     }
     rec(gdocs, null, 0)
 
-    // log('=CH=>', chains)
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
-    // log('M', min)
     let shortests = _.filter(chains, ch => ch.length == min)
-    // log('LS', shortests.length)
     let segs = combined(min, shortests)
-    // log('CL', clean)
     setDictIdx(str, segs, gdocs)
     return {segs: segs, gdocs: gdocs}
 }
@@ -91,16 +86,12 @@ function combined(size, chains) {
                     cont = false
                 }
             }
-            // log('AMBIS', ambis)
             let uambis = {}
             ambis.forEach(ambi => {
                 let key = ambi.map(seg => { return seg.dict}).join('-')
                 uambis[key] = ambi
             })
-            // log('UAMBIS', uambis)
             let clean = _.values(uambis)
-            // log('CLEAN', clean)
-            // let ambi = {ambis: ambis}
             res.push({ambis: clean})
         }
     }
@@ -125,29 +116,8 @@ function compactDocs(str, docs) {
     return _.sortBy(cdocs, 'start')
 }
 
-
-// function parseKeys(str) {
-//     let h, t
-//     let padas = []
-//     for (let idx = 1; idx < str.length+1; idx++) {
-//         h = str.slice(0, idx)
-//         t = str.slice(idx)
-//         padas.push(h)
-//         let h_
-//         for (let idy = 1; idy < t.length+1; idy++) {
-//             h_ = t.slice(0, idy)
-//             padas.push(h_)
-//         }
-//     }
-//     return padas
-// }
-
 function log() { console.log.apply(console, arguments); }
 
 function p(o) {
     console.log(util.inspect(o, false, null))
 }
-
-// function singles(gdocs){
-//     return _.filter(gdocs, doc => doc.size == 1)
-// }
