@@ -5,9 +5,9 @@ const util = require('util')
 var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
 
-export function segmenter(str, gdocs) {
-    // let gdocs = compactDocs(docs)
-    // log('=GD=', gdocs)
+export function segmenter(str, docs) {
+    let gdocs = compactDocs(str, docs)
+    // log('=GD=>', gdocs)
     let chains = []
     let rec = (gdocs, chain, pos) => {
         let starts = _.filter(gdocs, doc => doc.start == pos)
@@ -25,22 +25,25 @@ export function segmenter(str, gdocs) {
     }
     rec(gdocs, null, 0)
 
+    // log('=CH=>', chains)
     let sizes = chains.map(ch => ch.length)
     let min = _.min(sizes)
-    log('M', min)
+    // log('M', min)
     let shortests = _.filter(chains, ch => ch.length == min)
     // log('LS', shortests.length)
-    let clean = combined(min, shortests)
+    let segs = combined(min, shortests)
     // log('CL', clean)
-    setDict(str, clean, gdocs)
-    return clean
+    setDictIdx(str, segs, gdocs)
+    return {segs: segs, gdocs: gdocs}
 }
 
-function setDict(str, chain, gdocs) {
+// ambies get idx from chain, regular segs from gdocs:
+function setDictIdx(str, chain, gdocs) {
     chain.forEach((seg, idx) => {
-        let sidx = _.findIndex(gdocs, doc => { return doc.dict == seg.dict })
-        seg.idx = sidx
+        let gidx = _.findIndex(gdocs, doc => { return doc.dict == seg.dict })
+        seg.idx = gidx
         if (seg.dict) return
+        seg.idx = idx
         let start = (chain[idx-1]) ? chain[idx-1].start + chain[idx-1].size : 0
         let finish = (chain[idx+1]) ? chain[idx+1].start : str.length
         let dict = str.slice(start, finish)
