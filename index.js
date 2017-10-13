@@ -101,15 +101,17 @@ function combined(size, chains) {
 function compactDocs(str, docs) {
     let gdocs = _.groupBy(docs, '_id')
     let cdocs = []
-    for (let _id in gdocs) {
+  for (let _id in gdocs) {
         let indices = []
         let idx = str.indexOf(_id)
         while (idx != -1) {
             indices.push(idx);
             idx = str.indexOf(_id, idx + 1);
         }
-        indices.forEach(idx => {
-            let res = {dict: _id, size: _id.length, start: idx, docs: gdocs[_id]}
+    indices.forEach(idx => {
+      // проверить - теперь только уникальные _id ????
+            // let res = {dict: _id, size: _id.length, start: idx, docs: gdocs[_id]}
+          let res = {dict: _id, size: _id.length, start: idx, docs: gdocs[_id][0].docs, dname: gdocs[_id][0].dname }
             cdocs.push(res)
         })
     }
