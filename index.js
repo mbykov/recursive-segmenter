@@ -1,6 +1,5 @@
 // morpheus-eastern segmenter
 
-// const path = require('path')
 const util = require('util')
 var _ = require('lodash');
 var debug = (process.env.debug == 'true') ? true : false;
@@ -29,23 +28,24 @@ export function segmenter(str, docs) {
     let shortests = _.filter(chains, ch => ch.length == min)
     let segs = combined(min, shortests)
     setDictIdx(str, segs, gdocs)
-    return {segs: segs, gdocs: gdocs}
+  let adocs = _.filter(gdocs, (d) => { return !d.idx && d.idx != 0 })
+    return {segs: segs, gdocs: adocs}
 }
 
 // ambies get idx from chain, regular segs from gdocs:
 function setDictIdx(str, chain, gdocs) {
     chain.forEach((seg, idx) => {
-        let gidx = _.findIndex(gdocs, doc => { return doc.dict == seg.dict })
+        let gidx = _.findIndex(gdocs, doc => { return doc._id == seg._id })
         seg.idx = gidx
-        if (seg.dict) return
+        if (seg._id) return
         seg.idx = idx
         let start = (chain[idx-1]) ? chain[idx-1].start + chain[idx-1].size : 0
         let finish = (chain[idx+1]) ? chain[idx+1].start : str.length
-        let dict = str.slice(start, finish)
-        seg.dict = dict
+        let _id = str.slice(start, finish)
+        // seg._id = _id
         seg.start = start
         // seg.finish = finish
-        seg.size = dict.length
+        seg.size = _id.length
     })
 }
 
@@ -63,9 +63,9 @@ function combined(size, chains) {
     let cont = true
     for (let idx = 0; idx < size; idx++) {
         let curs = hash[idx]
-        let dicts = _.uniq(hash[idx].map(seg => seg.dict))
-        // let dicts = _.keys(curs)
-        if (dicts.length == 1) {
+        let _ids = _.uniq(hash[idx].map(seg => seg._id))
+        // let _ids = _.keys(curs)
+        if (_ids.length == 1) {
             cont = true
             res.push(curs[0])
         } else {
@@ -75,8 +75,8 @@ function combined(size, chains) {
             })
             for (let idy = idx+1; idy < size; idy++) {
                 if (!cont) continue
-                let dicts = _.uniq(hash[idy].map(seg => seg.dict))
-                if (dicts.length > 1) {
+                let _ids = _.uniq(hash[idy].map(seg => seg._id))
+                if (_ids.length > 1) {
                     idx++
                     let curs = hash[idy]
                     curs.forEach((cur, idz) => {
@@ -88,7 +88,7 @@ function combined(size, chains) {
             }
             let uambis = {}
             ambis.forEach(ambi => {
-                let key = ambi.map(seg => { return seg.dict}).join('-')
+                let key = ambi.map(seg => { return seg._id}).join('-')
                 uambis[key] = ambi
             })
             let clean = _.values(uambis)
@@ -99,17 +99,17 @@ function combined(size, chains) {
 }
 
 function compactDocs(str, docs) {
-    let gdocs = _.groupBy(docs, 'dict')
+    let gdocs = _.groupBy(docs, '_id')
     let cdocs = []
-    for (let dict in gdocs) {
+    for (let _id in gdocs) {
         let indices = []
-        let idx = str.indexOf(dict)
+        let idx = str.indexOf(_id)
         while (idx != -1) {
             indices.push(idx);
-            idx = str.indexOf(dict, idx + 1);
+            idx = str.indexOf(_id, idx + 1);
         }
         indices.forEach(idx => {
-            let res = {dict: dict, size: dict.length, start: idx, docs: gdocs[dict]}
+            let res = {dict: _id, size: _id.length, start: idx, docs: gdocs[_id]}
             cdocs.push(res)
         })
     }
