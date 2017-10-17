@@ -109,12 +109,11 @@ function compactDocs(str, docs) {
             idx = str.indexOf(_id, idx + 1);
         }
     indices.forEach(idx => {
-      // проверить - теперь только уникальные _id ????
-            // let res = {dict: _id, size: _id.length, start: idx, docs: gdocs[_id]}
-          let res = {dict: _id, size: _id.length, start: idx, docs: gdocs[_id][0].docs, dname: gdocs[_id][0].dname }
-            cdocs.push(res)
-        })
-    }
+      let res = {dict: _id, size: _id.length, start: idx} //, docs: gdocs[_id]
+      res.docs = _.groupBy(gdocs[_id], 'dname')
+      cdocs.push(res)
+    })
+  }
     return _.sortBy(cdocs, 'start')
 }
 
