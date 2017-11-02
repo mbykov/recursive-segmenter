@@ -3,7 +3,9 @@
 var _ = require('lodash')
 // var debug = (process.env.debug == 'true') ? true : false
 
-export function segmenter (str, docs) {
+module.exports = segmenter
+
+function segmenter (str, docs) {
   let gdocs = setDocs(str, docs)
   gdocs = addHoles(str, gdocs)
 
