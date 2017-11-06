@@ -1,6 +1,6 @@
 {
   "name": "recursive-segmenter",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "recursive segmenter is for recursively identifying separate words in Chinese or any eastern text",
   "main": "index.js",
   "scripts": {
