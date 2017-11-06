@@ -1,10 +1,12 @@
 // morpheus-eastern segmenter
 
-// var _ = require('lodash')
-import _ from 'lodash'
+var _ = require('lodash')
+// import _ from 'lodash'
 // var debug = (process.env.debug == 'true') ? true : false
 
-export function segmenter (str, docs) {
+module.exports = segmenter
+
+function segmenter (str, docs) {
   return new Promise((resolve, reject) => {
     let segs = recursive(str, docs)
     resolve(segs)
