@@ -6,16 +6,8 @@ var _ = require('lodash')
 
 module.exports = segmenter
 
-function segmenter (str, docs) {
-  return new Promise((resolve, reject) => {
-    let segs = recursive(str, docs)
-    resolve(segs)
-  })
-}
-
-// function segmenter (str, docs) {
-function recursive (str, docs) {
-  let gdocs = setDocs(str, docs)
+function segmenter (str, docs, only) {
+  let gdocs = setDocs(str, docs, only)
   gdocs = addHoles(str, gdocs)
 
   let chains = []
@@ -66,10 +58,10 @@ function addHoles (str, docs) {
   return _.sortBy(docs, 'start')
 }
 
-function setDocs (str, dicts) {
+function setDocs (str, dicts, only) {
   let cdocs = []
   dicts.forEach(dict => {
-    if (dicts.length > 1 && dict === str) return // dict is this only str
+    if (only && dict === str) return // dict is this only str
     let indices = []
     let idx = str.indexOf(dict)
     while (idx !== -1) {
